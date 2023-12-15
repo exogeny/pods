@@ -1,0 +1,4 @@
+Pillow==10.1.0
+tensorflow
+tensorflow_datasets
+opencv-python-headless
