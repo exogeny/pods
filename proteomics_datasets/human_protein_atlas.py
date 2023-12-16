@@ -91,8 +91,8 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
         'ensg/id': tfds.features.Text(),
         'ensg/name': tfds.features.Text(),
 
-        'image': tfds.features.Image(encoding_format='png'),
-        'image/mask': tfds.features.Image(encoding_format='png'),
+        'image': tfds.features.Image(encoding_format='png', shape=(None, None, 4)),
+        'image/mask': tfds.features.Image(encoding_format='png', shape=(None, None, 1)),
 
         'location/main/level1': tfds.features.Tensor(shape=(3,), dtype=tf.int64),
         'location/main/level2': tfds.features.Tensor(shape=(13,), dtype=tf.int64),

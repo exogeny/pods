@@ -1,0 +1,1 @@
+from proteomics_datasets.human_protein_atlas import HumanProteinAtlas
