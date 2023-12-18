@@ -120,7 +120,7 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
     for cell_line in cell_lines:
       url_path = os.path.join(current_folder, 'cell_lines', f'{cell_line}_images.csv')
       with tf.io.gfile.GFile(url_path, 'r') as f:
-        url_lines = f.readlines()[1:1000]
+        url_lines = f.readlines()[1:]
         url_lines = [tuple(l.strip().split(',')) for l in url_lines]
 
         image_infos[cell_line] = []
