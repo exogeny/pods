@@ -1,6 +1,6 @@
 import os
-import uuid
 import collections
+import multiprocessing as mp
 
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -120,7 +120,7 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
     for cell_line in cell_lines:
       url_path = os.path.join(current_folder, 'cell_lines', f'{cell_line}_images.csv')
       with tf.io.gfile.GFile(url_path, 'r') as f:
-        url_lines = f.readlines()[1:]
+        url_lines = f.readlines()[1:1000]
         url_lines = [tuple(l.strip().split(',')) for l in url_lines]
 
         image_infos[cell_line] = []
@@ -154,22 +154,19 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
       ))
     return splits
 
-
-  def _generate_examples(self, split_name, image_infos, image_paths, subcellular_locations):
-    for assay_id, image_id, gene_id, gene_name in image_infos:
-      key = f'{assay_id}-{image_id}'
-      image = utils.read_hpa_image(image_paths[f'{key}-c'], image_paths[f'{key}-y'])
-      location = subcellular_locations.get(gene_id, None)
-      location_ids = utils.get_location_ids(location)
-
-      for example in utils.generate_examples_from_image(image,
-                                                        image_paths[f'{key}-s'],
-                                                        split_name):
-        example.update({
-          'ensg/id': gene_id,
-          'ensg/name': gene_name,
-        })
-
-        index = str(uuid.uuid4())
-        example.update(location_ids)
-        yield f'{key}-{index}', example
+  def _generate_examples(self,
+                         split_name,
+                         image_infos,
+                         image_paths,
+                         subcellular_locations):
+    parameters = []
+    for assay_id, image_id, ene_id, gene_name, in image_infos:
+      parameters.append((
+          assay_id, image_id, ene_id, gene_name,
+          split_name, image_paths, subcellular_locations))
+    with mp.Pool(processes=mp.cpu_count() - 1) as pool:
+      iterator = pool.starmap(utils.generate_examples_for_human_protein_atlas,
+                              parameters)
+      for examples in iterator:
+        for key, example in examples:
+          yield key, example

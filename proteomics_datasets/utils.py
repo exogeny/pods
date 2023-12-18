@@ -1,6 +1,7 @@
 import io
 import os
 import cv2
+import uuid
 import dataclasses
 
 import numpy as np
@@ -163,3 +164,29 @@ def get_location_ids(location):
     'location/extracellular/level3': extracellular3,
     'location/reliability': location.reliability,
   }
+
+
+def generate_examples_for_human_protein_atlas(assay_id,
+                                              image_id,
+                                              gene_id,
+                                              gene_name,
+                                              split_name,
+                                              image_paths,
+                                              subcellular_locations):
+  key = f'{assay_id}-{image_id}'
+  image = read_hpa_image(
+      image_paths[f'{key}-c'], image_paths[f'{key}-y'])
+  location = subcellular_locations.get(gene_id, None)
+  location_ids = get_location_ids(location)
+  examples = []
+  for example in generate_examples_from_image(image,
+                                              image_paths[f'{key}-s'],
+                                              split_name):
+    example.update({
+      'ensg/id': gene_id,
+      'ensg/name': gene_name,
+    })
+    index = str(uuid.uuid4())
+    example.update(location_ids)
+    examples.append((f'{key}-{index}', example))
+  return examples
