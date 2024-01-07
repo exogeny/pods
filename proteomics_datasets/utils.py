@@ -84,7 +84,7 @@ def generate_examples_from_image(image, segmentation_path, split_name=False):
   bboxes, indices = [], []
   for i, stat in enumerate(stats[1:]):
     x, y, w, h, area = stat
-    if area < 100:
+    if area < 32 * 32 or w < 32 or h < 32:
       continue
 
     indices.append(i + 1)
@@ -101,7 +101,7 @@ def generate_examples_from_image(image, segmentation_path, split_name=False):
   for i, (x, y, w, h) in zip(indices, bboxes):
     patch = image[y:y+h, x:x+w]
     segmentation = labels == i
-    segmentation = np.array(segmentation, dtype=np.uint8) * 255
+    segmentation = np.array(segmentation, dtype=np.uint8)
     segmentation = segmentation[y:y+h, x:x+w]
 
     yield {

@@ -24,6 +24,7 @@ class HumanProteinAtlasCollection(dataset_collection_builder.DatasetCollection):
       description='Human Protein Atlas subcellular datasets',
       release_notes={
         '1.0.0': 'Initial release.',
+        '1.0.1': 'The minmum area is 32 x 32',
       },
     )
 
@@ -48,15 +49,16 @@ class HumanProteinAtlasConfig(tfds.core.BuilderConfig):
 
   def __init__(self, splits=None, **kwargs):
     super(HumanProteinAtlasConfig, self).__init__(
-        version=tfds.core.Version('1.1.0'), **kwargs)
+        version=tfds.core.Version('1.0.1'), **kwargs)
     self.splits = splits
 
 
 class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
 
-  VERSION = tfds.core.Version('1.0.0')
+  VERSION = tfds.core.Version('1.0.1')
   RELEASE_NOTES = {
     '1.0.0': 'Initial release.',
+    '1.0.1': 'Minmum area is 32 x 32',
   }
   BUILDER_CONFIGS = [
     HumanProteinAtlasConfig(
