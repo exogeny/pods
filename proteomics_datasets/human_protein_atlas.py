@@ -2,6 +2,7 @@ import os
 import collections
 import multiprocessing as mp
 
+import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow_datasets.core import dataset_collection_builder
@@ -15,50 +16,21 @@ Split = collections.namedtuple(
 )
 
 
-class HumanProteinAtlasCollection(dataset_collection_builder.DatasetCollection):
-
-  @property
-  def info(self):
-    return dataset_collection_builder.DatasetCollectionInfo.from_cls(
-      dataset_collection_class=self.__class__,
-      description='Human Protein Atlas subcellular datasets',
-      release_notes={
-        '1.0.0': 'Initial release.',
-        '1.0.1': 'The minmum area is 32 x 32',
-      },
-    )
-
-  @property
-  def datasets(self):
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    cell_lines = os.listdir(os.path.join(current_folder, 'cell_lines'))
-    cell_lines = [c for c in cell_lines if 'images.csv' in c]
-    cell_lines = [c.replace('_images.csv', '') for c in cell_lines]
-
-    return collections.OrderedDict({
-      "1.0.0": naming.references_for(
-        {
-          cell_line: f'Cell line {cell_line}'
-          for cell_line in cell_lines
-        }
-      )
-    })
-
-
 class HumanProteinAtlasConfig(tfds.core.BuilderConfig):
 
   def __init__(self, splits=None, **kwargs):
     super(HumanProteinAtlasConfig, self).__init__(
-        version=tfds.core.Version('1.0.1'), **kwargs)
+        version=tfds.core.Version('1.0.2'), **kwargs)
     self.splits = splits
 
 
 class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
 
-  VERSION = tfds.core.Version('1.0.1')
+  VERSION = tfds.core.Version('1.0.2')
   RELEASE_NOTES = {
     '1.0.0': 'Initial release.',
     '1.0.1': 'Minmum area is 32 x 32',
+    '1.0.2': 'All cell line data available using `All`',
   }
   BUILDER_CONFIGS = [
     HumanProteinAtlasConfig(
@@ -85,6 +57,12 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
         Split(name=tfds.Split.TRAIN, cell_line='U-251MG'),
         Split(name=tfds.Split.TEST, cell_line='U-251MG'),
       ]),
+    HumanProteinAtlasConfig(
+      name='All',
+      splits=[
+        Split(name=tfds.Split.TRAIN, cell_line='All'),
+        Split(name=tfds.Split.TEST, cell_line='All'),
+      ]),
   ]
 
   def _info(self):
@@ -96,15 +74,15 @@ class HumanProteinAtlas(tfds.core.GeneratorBasedBuilder):
         'image': tfds.features.Image(encoding_format='png', shape=(None, None, 4)),
         'image/mask': tfds.features.Image(encoding_format='png', shape=(None, None, 1)),
 
-        'location/main/level1': tfds.features.Tensor(shape=(3,), dtype=tf.int64),
-        'location/main/level2': tfds.features.Tensor(shape=(13,), dtype=tf.int64),
-        'location/main/level3': tfds.features.Tensor(shape=(34,), dtype=tf.int64),
-        'location/additional/level1':tfds.features.Tensor(shape=(3,), dtype=tf.int64),
-        'location/additional/level2': tfds.features.Tensor(shape=(13,), dtype=tf.int64),
-        'location/additional/level3': tfds.features.Tensor(shape=(34,), dtype=tf.int64),
-        'location/extracellular/level1': tfds.features.Tensor(shape=(3,), dtype=tf.int64),
-        'location/extracellular/level2': tfds.features.Tensor(shape=(13,), dtype=tf.int64),
-        'location/extracellular/level3': tfds.features.Tensor(shape=(34,), dtype=tf.int64),
+        'location/main/level1': tfds.features.Tensor(shape=(3,), dtype=np.int64),
+        'location/main/level2': tfds.features.Tensor(shape=(13,), dtype=np.int64),
+        'location/main/level3': tfds.features.Tensor(shape=(34,), dtype=np.int64),
+        'location/additional/level1':tfds.features.Tensor(shape=(3,), dtype=np.int64),
+        'location/additional/level2': tfds.features.Tensor(shape=(13,), dtype=np.int64),
+        'location/additional/level3': tfds.features.Tensor(shape=(34,), dtype=np.int64),
+        'location/extracellular/level1': tfds.features.Tensor(shape=(3,), dtype=np.int64),
+        'location/extracellular/level2': tfds.features.Tensor(shape=(13,), dtype=np.int64),
+        'location/extracellular/level3': tfds.features.Tensor(shape=(34,), dtype=np.int64),
         'location/reliability': tfds.features.Text(),
       }),
     )
