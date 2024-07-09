@@ -24,6 +24,7 @@ setup(
   install_requires=_parse_requirements('requirements.txt'),
   python_requires='>=3.9',
   include_package_data=True,
+  package_data={'cell_lines': ['proteomics_datasets/cell_lines/*.csv']},
   zip_safe=False,
   classifiers=[
     'Development Status :: 4 - Beta',
