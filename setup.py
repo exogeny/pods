@@ -1,4 +1,4 @@
-from setuptools import find_namespace_packages
+from setuptools import find_packages
 from setuptools import setup
 
 
@@ -20,11 +20,12 @@ setup(
   long_description_content_type='text/markdown',
   url='https://github.com/exogeny/pods',
   license='MIT',
-  packages=find_namespace_packages(),
+  packages=find_packages(where='src'),
+  package_dir={"": "src"},
   install_requires=_parse_requirements('requirements.txt'),
   python_requires='>=3.9',
   include_package_data=True,
-  package_data={'cell_lines': ['proteomics_datasets/cell_lines/*.csv']},
+  package_data={'': ['*.csv']},
   zip_safe=False,
   classifiers=[
     'Development Status :: 4 - Beta',
